@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, ArrowRight, Zap, Clock, Users, TrendingUp, Star } from 'lucide-react'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 export default function LandingPage() {
     const [isVideoPlaying, setIsVideoPlaying] = useState(false)
@@ -34,9 +35,7 @@ export default function LandingPage() {
                             <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">Pricing</a>
                             <a href="#contact" className="text-gray-600 hover:text-gray-900 transition-colors">Contact</a>
                             <Button variant="outline" className="ml-4">Sign In</Button>
-                            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                                Start Free Trial
-                            </Button>
+                            <ConnectButton />
                         </nav>
                     </div>
                 </div>
