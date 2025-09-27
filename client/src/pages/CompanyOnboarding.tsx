@@ -80,8 +80,8 @@ export default function CompanyOnboardingPage() {
         size: '',
         niche: ''
     })
-    const [selectedAgents, setSelectedAgents] = useState<{ [key: string]: { enabled: boolean, limit: number } }>({
-        conversational: { enabled: true, limit: 100 }
+    const [selectedAgents, setSelectedAgents] = useState<{ [key: string]: { enabled: boolean, limit: number, concurrentClients?: number } }>({
+        conversational: { enabled: true, limit: 100, concurrentClients: 1 }
     })
 
     const handleNext = () => {
@@ -111,6 +111,13 @@ export default function CompanyOnboardingPage() {
         }
     }
 
+    const updateConcurrentClients = (agentId: string, concurrentClients: number) => {
+        setSelectedAgents(prev => ({
+            ...prev,
+            [agentId]: { ...prev[agentId], concurrentClients: concurrentClients }
+        }))
+    }
+
     const toggleAgent = (agentId: string) => {
         if (agentId === 'conversational') return // Always required
 
@@ -118,7 +125,8 @@ export default function CompanyOnboardingPage() {
             ...prev,
             [agentId]: {
                 enabled: !prev[agentId]?.enabled,
-                limit: selectedAgents.conversational.limit
+                limit: prev[agentId]?.limit || agentTypes.find(a => a.id === agentId)?.baseLimit || 100,
+                concurrentClients: prev[agentId]?.concurrentClients || 1
             }
         }))
     }
@@ -287,7 +295,8 @@ export default function CompanyOnboardingPage() {
 
                                 const IconComponent = agent.icon
                                 const extraCalls = Math.max(0, selection.limit - agent.baseLimit)
-                                const monthlyCost = agent.basePrice + (extraCalls * agent.extraCost)
+                                const concurrentCost = agent.id === 'conversational' ? ((selection.concurrentClients || 1) - 1) * 25 : 0
+                                const monthlyCost = agent.basePrice + (extraCalls * agent.extraCost) + concurrentCost
 
                                 return (
                                     <Card key={agent.id}>
@@ -303,44 +312,104 @@ export default function CompanyOnboardingPage() {
                                             </div>
 
                                             <div className="space-y-4">
-                                                <div>
-                                                    <label className="text-sm font-medium">
-                                                        Monthly {agent.id === 'conversational' ? 'Calls' : 'Estimations'} Limit
-                                                    </label>
-                                                    <div className="flex items-center space-x-4 mt-2">
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => updateAgentLimit(agent.id, selection.limit - 50)}
-                                                            disabled={selection.limit <= agent.baseLimit}
-                                                        >
-                                                            <Minus className="h-4 w-4" />
-                                                        </Button>
+                                                {agent.id === 'conversational' ? (
+                                                    <>
+                                                        <div>
+                                                            <label className="text-sm font-medium">
+                                                                Monthly Calls Limit
+                                                            </label>
+                                                            <div className="flex items-center space-x-4 mt-2">
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => updateAgentLimit(agent.id, selection.limit - 50)}
+                                                                    disabled={selection.limit <= agent.baseLimit}
+                                                                >
+                                                                    <Minus className="h-4 w-4" />
+                                                                </Button>
 
-                                                        <div className="flex-1">
+                                                                <div className="flex-1">
+                                                                    <Input
+                                                                        type="number"
+                                                                        value={selection.limit}
+                                                                        onChange={(e) => updateAgentLimit(agent.id, parseInt(e.target.value) || agent.baseLimit)}
+                                                                        min={agent.baseLimit}
+                                                                        className="text-center"
+                                                                    />
+                                                                </div>
+
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => updateAgentLimit(agent.id, selection.limit + 50)}
+                                                                >
+                                                                    <Plus className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+
+                                                            <div className="mt-2 text-xs text-gray-500">
+                                                                Base: {agent.baseLimit} included,
+                                                                Extra: {extraCalls} × ${agent.extraCost} = ${(extraCalls * agent.extraCost).toFixed(2)}
+                                                            </div>
+                                                        </div>
+
+                                                        <div>
+                                                            <label className="text-sm font-medium">
+                                                                Concurrent Clients per Agent
+                                                            </label>
+                                                            <div className="flex items-center space-x-4 mt-2">
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => updateConcurrentClients(agent.id, (selection.concurrentClients || 1) - 1)}
+                                                                    disabled={(selection.concurrentClients || 1) <= 1}
+                                                                >
+                                                                    <Minus className="h-4 w-4" />
+                                                                </Button>
+
+                                                                <div className="flex-1">
+                                                                    <Input
+                                                                        type="number"
+                                                                        value={selection.concurrentClients || 1}
+                                                                        onChange={(e) => updateConcurrentClients(agent.id, parseInt(e.target.value) || 1)}
+                                                                        min={1}
+                                                                        className="text-center"
+                                                                    />
+                                                                </div>
+
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => updateConcurrentClients(agent.id, (selection.concurrentClients || 1) + 1)}
+                                                                >
+                                                                    <Plus className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+
+                                                            <div className="mt-2 text-xs text-gray-500">
+                                                                Scaling cost: {((selection.concurrentClients || 1) - 1) * 25} × $25 = ${((selection.concurrentClients || 1) - 1) * 25}/month
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <div>
+                                                        <label className="text-sm font-medium">
+                                                            Monthly Estimations Limit
+                                                        </label>
+                                                        <div className="mt-2">
                                                             <Input
                                                                 type="number"
                                                                 value={selection.limit}
-                                                                onChange={(e) => updateAgentLimit(agent.id, parseInt(e.target.value) || agent.baseLimit)}
-                                                                min={agent.baseLimit}
                                                                 className="text-center"
+                                                                disabled={true}
+                                                                readOnly={true}
                                                             />
                                                         </div>
-
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => updateAgentLimit(agent.id, selection.limit + 50)}
-                                                        >
-                                                            <Plus className="h-4 w-4" />
-                                                        </Button>
+                                                        <div className="mt-2 text-xs text-gray-500">
+                                                            Automatically synced with Conversational Agent usage
+                                                        </div>
                                                     </div>
-
-                                                    <div className="mt-2 text-xs text-gray-500">
-                                                        Base: {agent.baseLimit} included,
-                                                        Extra: {extraCalls} × ${agent.extraCost} = ${(extraCalls * agent.extraCost).toFixed(2)}
-                                                    </div>
-                                                </div>
+                                                )}
 
                                                 {agent.id === 'estimation' && selectedAgents.conversational?.enabled && (
                                                     <div className="bg-blue-50 p-3 rounded-lg">
@@ -377,7 +446,8 @@ export default function CompanyOnboardingPage() {
                                     if (!selection?.enabled) return null
 
                                     const extraCalls = Math.max(0, selection.limit - agent.baseLimit)
-                                    const monthlyCost = agent.basePrice + (extraCalls * agent.extraCost)
+                                    const concurrentCost = agent.id === 'conversational' ? ((selection.concurrentClients || 1) - 1) * 25 : 0
+                                    const monthlyCost = agent.basePrice + (extraCalls * agent.extraCost) + concurrentCost
 
                                     return (
                                         <div key={agent.id} className="flex items-center justify-between py-2">
@@ -385,6 +455,9 @@ export default function CompanyOnboardingPage() {
                                                 <p className="font-medium">{agent.name}</p>
                                                 <p className="text-sm text-gray-600">
                                                     {selection.limit} {agent.id === 'conversational' ? 'calls' : 'estimations'}/month
+                                                    {agent.id === 'conversational' && selection.concurrentClients && selection.concurrentClients > 1 && (
+                                                        <span className="ml-2">• {selection.concurrentClients} concurrent clients</span>
+                                                    )}
                                                 </p>
                                             </div>
                                             <p className="font-medium">${monthlyCost}/month</p>
@@ -454,8 +527,8 @@ export default function CompanyOnboardingPage() {
                                 }`}
                         >
                             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${index < currentStep ? 'bg-blue-600 text-white' :
-                                    index === currentStep ? 'bg-blue-100 text-blue-600' :
-                                        'bg-gray-200 text-gray-400'
+                                index === currentStep ? 'bg-blue-100 text-blue-600' :
+                                    'bg-gray-200 text-gray-400'
                                 }`}>
                                 {index < currentStep ? <Check className="h-3 w-3" /> : index + 1}
                             </div>
