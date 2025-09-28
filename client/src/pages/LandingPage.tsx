@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, Clock, Users, TrendingUp, Star } from 'lucide-react'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import NoFormaWidget from '@/components/widget/noforma'
 
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -382,7 +383,7 @@ export default function LandingPage() {
     }
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white relative">
             {/* Header */}
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -832,6 +833,7 @@ export default function LandingPage() {
                     </div>
                 </div>
             </footer>
+            <NoFormaWidget />
         </div>
     )
 }
