@@ -1,11 +1,8 @@
 import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
 import {
     Bot,
@@ -15,15 +12,12 @@ import {
     Check,
     ArrowRight,
     ArrowLeft,
-    DollarSign,
     Zap
 } from 'lucide-react'
 
 const steps = [
-    'Company Information',
     'Agent Selection',
     'Configuration',
-    'Payment & Activation'
 ]
 
 type AgentType = {
@@ -145,68 +139,8 @@ export default function CompanyOnboardingPage() {
 
     const renderStep = () => {
         switch (currentStep) {
-            case 0:
-                return (
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="text-lg font-semibold mb-4">Tell us about your company</h3>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="text-sm font-medium">Company Name</label>
-                                    <Input
-                                        placeholder="Enter your company name"
-                                        value={companyData.name}
-                                        onChange={(e) => setCompanyData(prev => ({ ...prev, name: e.target.value }))}
-                                        className="mt-1"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium">About Your Company</label>
-                                    <Textarea
-                                        placeholder="Brief description of your company and services"
-                                        value={companyData.about}
-                                        onChange={(e) => setCompanyData(prev => ({ ...prev, about: e.target.value }))}
-                                        className="mt-1 h-24"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="text-sm font-medium">Company Size</label>
-                                        <Select value={companyData.size} onValueChange={(value) => setCompanyData(prev => ({ ...prev, size: value }))}>
-                                            <SelectTrigger className="mt-1">
-                                                <SelectValue placeholder="Select size" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="1-10">1-10 employees</SelectItem>
-                                                <SelectItem value="11-50">11-50 employees</SelectItem>
-                                                <SelectItem value="51-200">51-200 employees</SelectItem>
-                                                <SelectItem value="200+">200+ employees</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium">Industry/Niche</label>
-                                        <Select value={companyData.niche} onValueChange={(value) => setCompanyData(prev => ({ ...prev, niche: value }))}>
-                                            <SelectTrigger className="mt-1">
-                                                <SelectValue placeholder="Select industry" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="web-development">Web Development</SelectItem>
-                                                <SelectItem value="mobile-apps">Mobile Apps</SelectItem>
-                                                <SelectItem value="digital-marketing">Digital Marketing</SelectItem>
-                                                <SelectItem value="design">Design Services</SelectItem>
-                                                <SelectItem value="consulting">Consulting</SelectItem>
-                                                <SelectItem value="other">Other</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )
 
-            case 1:
+            case 0:
                 return (
                     <div className="space-y-6">
                         <div>
@@ -280,7 +214,7 @@ export default function CompanyOnboardingPage() {
                     </div>
                 )
 
-            case 2:
+            case 1:
                 return (
                     <div className="space-y-6">
                         <div>
@@ -427,82 +361,6 @@ export default function CompanyOnboardingPage() {
                         </div>
                     </div>
                 )
-
-            case 3:
-                return (
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="text-lg font-semibold mb-2">Review & Payment</h3>
-                            <p className="text-gray-600 mb-6">Confirm your selection and complete setup</p>
-                        </div>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Order Summary</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                {agentTypes.map((agent) => {
-                                    const selection = selectedAgents[agent.id]
-                                    if (!selection?.enabled) return null
-
-                                    const extraCalls = Math.max(0, selection.limit - agent.baseLimit)
-                                    const concurrentCost = agent.id === 'conversational' ? ((selection.concurrentClients || 1) - 1) * 25 : 0
-                                    const monthlyCost = agent.basePrice + (extraCalls * agent.extraCost) + concurrentCost
-
-                                    return (
-                                        <div key={agent.id} className="flex items-center justify-between py-2">
-                                            <div>
-                                                <p className="font-medium">{agent.name}</p>
-                                                <p className="text-sm text-gray-600">
-                                                    {selection.limit} {agent.id === 'conversational' ? 'calls' : 'estimations'}/month
-                                                    {agent.id === 'conversational' && selection.concurrentClients && selection.concurrentClients > 1 && (
-                                                        <span className="ml-2">• {selection.concurrentClients} concurrent clients</span>
-                                                    )}
-                                                </p>
-                                            </div>
-                                            <p className="font-medium">${monthlyCost}/month</p>
-                                        </div>
-                                    )
-                                })}
-
-                                <Separator />
-
-                                <div className="flex items-center justify-between text-lg font-bold">
-                                    <span>Total</span>
-                                    <span>${calculateTotal()}/month</span>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Company Information</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <span className="text-gray-500">Company:</span>
-                                        <p className="font-medium">{companyData.name || 'Not specified'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Industry:</span>
-                                        <p className="font-medium">{companyData.niche || 'Not specified'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Size:</span>
-                                        <p className="font-medium">{companyData.size || 'Not specified'}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Button className="w-full" size="lg">
-                            <DollarSign className="h-4 w-4" />
-                            Complete Payment and Continue
-                        </Button>
-                    </div>
-                )
-
             default:
                 return null
         }

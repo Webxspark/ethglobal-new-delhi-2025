@@ -10,23 +10,18 @@ import {
     Bot,
     Users,
     FolderOpen,
-    FileText,
     BookOpen,
-    Building2,
     Menu,
     Settings,
     LogOut,
     Bell
 } from 'lucide-react'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Agents', href: '/dashboard/agents', icon: Bot },
     { name: 'Customers', href: '/dashboard/customers', icon: Users },
     { name: 'Projects', href: '/dashboard/projects', icon: FolderOpen },
-    { name: 'Invoices', href: '/dashboard/invoices', icon: FileText },
-    { name: 'Knowledge Base', href: '/dashboard/knowledgebase', icon: BookOpen },
-    { name: 'Company Settings', href: '/dashboard/company', icon: Building2 },
 ]
 
 export default function DashboardLayout() {
@@ -74,28 +69,6 @@ export default function DashboardLayout() {
             <Separator />
 
             {/* User Profile */}
-            <div className="p-4">
-                <div className="flex items-center">
-                    <Avatar className="h-10 w-10">
-                        <AvatarImage src="/avatar.jpg" alt="User" />
-                        <AvatarFallback className="bg-blue-100 text-blue-600">JD</AvatarFallback>
-                    </Avatar>
-                    <div className="ml-3 flex-1">
-                        <p className="text-sm font-medium text-gray-900">John Doe</p>
-                        <p className="text-xs text-gray-500">john@company.com</p>
-                    </div>
-                </div>
-                <div className="mt-3 flex space-x-2">
-                    <Button variant="ghost" size="sm" className="flex-1">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Settings
-                    </Button>
-                    <Button variant="ghost" size="sm" className="flex-1">
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Logout
-                    </Button>
-                </div>
-            </div>
         </div>
     )
 
@@ -128,17 +101,8 @@ export default function DashboardLayout() {
                 <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
 
-                        <div className="flex items-center space-x-4">
-                            <Button variant="ghost" size="sm" className="relative">
-                                <Bell className="h-5 w-5" />
-                                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                                    3
-                                </span>
-                            </Button>
-                            <Avatar className="h-8 w-8">
-                                <AvatarImage src="/avatar.jpg" alt="User" />
-                                <AvatarFallback className="bg-blue-100 text-blue-600">JD</AvatarFallback>
-                            </Avatar>
+                        <div className="flex items-center justify-end w-full space-x-4">
+                            <ConnectButton />
                         </div>
                     </div>
                 </div>
